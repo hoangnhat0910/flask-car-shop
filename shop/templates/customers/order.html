@@ -1,0 +1,98 @@
+{% extends 'layout.html' %}
+{% block content %}
+
+<div class="container mt-3">
+    <div class="row">
+        <div class="col-md-12">
+            Invoice: {{orders.invoice}}
+            <br>
+            Status: {{orders.status}}
+            <br>
+            Customer name: {{customer.name}}
+            <br>
+            Customer email: {{customer.email}}
+            <br>
+            Customer contact: {{customer.contact}}
+            <br>
+            <br>
+        <table class="table table-sm">
+            <thead>
+                <th>Sr</th>
+                <th></th>
+                <th>Name</th>
+                <th>Color</th>
+                <th class="text-center">Price</th>
+                <th>Quantity</th>
+                <th>Subtotal</th>
+            </thead>
+            <tbody>
+                {% for key, product in orders.orders.items() %}
+                <tr>
+                    <td>{{loop.index}}</td>
+                    <td></td>
+                    <td>{{product.name}}</td>
+                    <form action="{{url_for('updatecart', code=key)}}" method="POST">
+                    <td>
+                        {{product.color}}
+                    </td>
+                    <td class="text-center">
+                        <!-- {% set discount = "%0.2f"|format((product.discount/100)*product.price|float) %} -->
+                        {% set discount = ((product.discount/100)*product.price) | int %}
+                        {% if product.discount > 0 %}
+                            <span class="text-decoration-line-through">{{product.price | format_currency}}</span>     
+                        {% endif %}
+                        <!-- {% set new_price = "%0.2f"|format(product.price|float - discount|float) %} -->
+                        {% set new_price = product.price - discount %}
+                        <span class="p-3">{{new_price | format_currency}}</span>
+                    </td>
+                    <td>{{product.quantity}}</td>
+                    
+                    <td>
+                        <!-- {% set subtotal = "%0.2f"|format(product.quantity|int * new_price|float) %} -->
+                        {% set subtotal = (product.quantity * new_price | int) %}
+                         {{subTotal | format_currency}}</td>
+                    <td></td>
+                    </form>
+                    <td></td>
+                
+                </tr>
+                {% endfor %}
+                <table class="table table-sm text-center">
+                <tr>
+                    <td></td>
+                    <td> {% if orders.status == 'Paid' %}
+                        {% else %}
+                        <form action="{{url_for('purchase')}}" method="POST">
+                            {% set amount = grandTotal.replace('.', '') %}
+                            <input type="hidden" name="amount" value="{{amount}}">
+                            <input type="hidden" name="invoice" value="{{orders.invoice}}">
+                            <script
+                              src="https://checkout.stripe.com/checkout.js"
+                              class="stripe-button"
+                              data-key="pk_test_51RBvbGRd4xpbA37DqeVzujzU0acYsL1GyxJCLrxZhUiLrxu6oiI6J4Nxr5HCmdUbNwHs7PfS7KXda4DXc6tdOCTu00iG6XJe1v"
+                              data-name="my_first_website"
+                              data-description="Your custom designed t-shirt"
+                              data-amount="{{amount}}"
+                              data-currency="usd">
+                            </script>
+                          </form>
+                          {% endif %}
+                    </td>
+                    <td width="35%"></td>
+                    <td colspan="3">Tax: <h5>{{tax | format_currency}}</h5></td>
+                    <td colspan="3">Grand total: <h5>{{grandTotal | format_currency}}</h5></td>
+                    <td class="text-end px-5">
+                        <form action="{{url_for('get_pdf', invoice=orders.invoice)}}"  target="_blank" method="post">
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                Get PDF
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+{% endblock content %}

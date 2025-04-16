@@ -1,0 +1,34 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container mt-4">
+    <form method="POST" enctype="multipart/form-data">
+        <div>
+            <label>Upload Profile Image:</label>
+            <input type="file" name="profile">
+        </div>
+        <div>
+            <label>Upload Gallery Images (multiple):</label>
+            <input type="file" name="gallery" multiple>
+        </div>
+        <button type="submit">Upload</button>
+    </form>
+    
+    <h4>Profile Images:</h4>
+    <div>
+        {% for img in profile_images %}
+            <img src="{{ url_for('static', filename='images/' + img.filename) }}" width="120">
+        {% endfor %}
+</div>
+
+
+</div>
+
+<h4>Gallery Images:</h4>
+<div>
+    {% for img in gallery_images %}
+        <img src="{{ url_for('static', filename='images/' + img.filename) }}" width="120">
+    {% endfor %}
+</div>
+
+
+{% endblock %}

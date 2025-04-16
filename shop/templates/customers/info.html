@@ -1,0 +1,121 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-success text-white text-center py-3 rounded-top-4">
+          <h4 class="mb-0">Your Account Information</h4>
+        </div>
+        <div class="card-body bg-light p-4">
+          <div class="row">
+            <!-- Thông tin người dùng -->
+            <div class="col-md-8">
+              <table class="table table-borderless align-middle">
+                <tbody>
+                  <tr>
+                    <th scope="row" class="text-muted">Username</th>
+                    <td>{{ user.username }}</td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="text-muted">Password</th>
+                    <td>********</td>
+                    <td><a href="{{ url_for('customerInfo') }}">Change</a></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="text-muted">Name</th>
+                    <td>{{ user.name }}</td>
+                    <td><a href="{{ url_for('customerInfo') }}">Change</a></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="text-muted">Email</th>
+                    <td>{{ user.email }}</td>
+                    <td><a href="{{ url_for('customerInfo') }}">Change</a></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="text-muted">Contact</th>
+                    <td>{{ user.contact }}</td>
+                    <td><a href="{{ url_for('customerInfo') }}">Change</a></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="text-muted">Address</th>
+                    <td>
+                      <div>Country: {{ user.country }}</div>
+                      <div>City: {{ user.city }}</div>
+                      <div>Address: {{ user.Address }}</div>
+                      <div>Zipcode: {{ user.zipcode }}</div>
+                    </td>
+                    <td><a href="{{ url_for('customerInfo') }}">Change</a></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Ảnh đại diện -->
+            <div class="col-md-4 d-flex flex-column align-items-center">
+              <p class="fw-semibold mb-2">Profile Image</p>
+              <img src="{{ url_for('static', filename='images/' + user.profile) }}"
+                   class="rounded-circle shadow mb-4"
+                   alt="{{ user.name }}"
+                   width="150" height="150">
+              
+                   <form action="{{ url_for('change_profile_image') }}" method="POST" enctype="multipart/form-data" class="text-center" id="profile-form">
+                    <input type="file" name="profile" id="profile-input" accept="image/*" style="display: none;" onchange="document.getElementById('profile-form').submit();">
+                    <button type="button" class="btn btn-success btn-sm" onclick="document.getElementById('profile-input').click()">Change</button>
+                  </form>
+                  
+                  
+
+              <br>
+                <p class="text-secondary text-center">
+                  Maximum file size 1 MB<br>
+                  Format: .JPEG, .PNG
+                </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .table th {
+    width: 150px;
+    font-weight: 600;
+  }
+
+  .table td {
+    color: #555;
+  }
+
+  a {
+    font-weight: 500;
+    text-decoration: none;
+    color: #198754;
+  }
+
+  a:hover {
+    text-decoration: underline;
+    color: #145c32;
+  }
+
+  .card {
+    border-radius: 12px;
+  }
+
+  .rounded-top-4 {
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+  }
+
+  .fw-semibold {
+    font-weight: 600;
+  }
+
+  .shadow {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+</style>
+{% endblock content %}

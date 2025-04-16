@@ -1,0 +1,164 @@
+{% extends 'layout.html' %}
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        {% set all_products = product_bb if product_bb else (product_bc if product_bc else products) %}
+            <div class="row mb-4">
+            {% for product in all_products.items %}
+                <div class="col-md-4 mt-4">
+                <div class="card shadow-sm border-0 product-card" style="background-color: #f7f7f7;">
+                    <a href="{{ url_for('single_product', id=product.id) }}" class="text-decoration-none">
+                    <img src="{{ url_for('static', filename='images/' + product.image_1) }}" 
+                        alt="{{ product.name }}" class="card-img-top img-fluid product-image" style="height: 250px; object-fit: cover;">
+                    </a>
+                    {% if product.discount > 0 %}
+                    <span class="badge bg-danger position-absolute top-0 start-0 m-2 p-2">-{{ product.discount }}%</span>
+                    {% endif %}
+                    <div class="card-body text-center">
+                    <h5 class="product-title">{{ product.name }}</h5>
+                    
+                    <div class="fw-bold fs-5 text-success">$ {{ '{:,}'.format(product.price | int) }}</div>
+                    
+                    </div>
+                    <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+                        <div class="card-body text-center">
+                        {% set colors = product.colors.split(',') %}
+                        <div class="">
+                            {% for color in colors %}
+                            {% set col = color.strip().split(':') %}
+                            <span class="badge rounded-pill text-bg-light border">{{ col[0]|capitalize }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <!-- <a href="{{ url_for('single_product', id=product.id) }}" class="btn btn-sm btn-outline-primary">Details</a>
+                    <form action="{{ url_for('AddCart') }}" method="POST" class="m-0">
+                        <input type="hidden" name="product_id" value="{{ product.id }}">
+                        <input type="hidden" name="quantity" value="1" min="1" max="{{ product.stock }}">
+                        <select name="colors" style="display: none;">
+                        {% for color in colors %}
+                            {% set col = color.strip().split(':') %}
+                            <option value="{{ col[0] }}">{{ col[0]|capitalize }}</option>
+                        {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-warning">Add to Cart</button>
+                    </form> -->
+                    </div>
+                </div>
+                </div>
+            {% endfor %}
+
+            </div>
+            
+            <div class="row">
+                <div class="col text-center">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            {% set current_page = all_products.page %}
+                            {% set total_pages = all_products.pages %}
+            
+                            {% if product_bc %}
+                                {% set pagination_endpoint = 'get_category' %}
+                                {% set pagination_id = get_cat.id %}
+                            {% elif product_bb %}
+                                {% set pagination_endpoint = 'get_brand' %}
+                                {% set pagination_id = get_bra.id %}
+                            {% else %}
+                                {% set pagination_endpoint = 'home' %}
+                                {% set pagination_id = None %}
+                            {% endif %}
+            
+                            {# Lấy url cho một trang cụ thể #}
+                            {% macro page_url(p) %}
+                                {{ url_for(pagination_endpoint, id=pagination_id, page=p) if pagination_id else url_for(pagination_endpoint, page=p) }}
+                            {% endmacro %}
+            
+                            {# « previous #}
+                            {% if all_products.has_prev %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ page_url(all_products.prev_num) }}">&laquo;</a>
+                                </li>
+                            {% endif %}
+            
+                            {# Tính range hiển thị #}
+                            {% set start_page = 1 if current_page - 3 < 1 else current_page - 3 %}
+                            {% set end_page = total_pages if current_page + 3 > total_pages else current_page + 3 %}
+            
+                            {% if start_page > 1 %}
+                                <li class="page-item"><a class="page-link" href="{{ page_url(1) }}">1</a></li>
+                                {% if start_page > 2 %}
+                                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                                {% endif %}
+                            {% endif %}
+            
+                            {# Các số trang #}
+                            {% for p in range(start_page, end_page + 1) %}
+                                <li class="page-item {% if p == current_page %}active{% endif %}">
+                                    <a class="page-link" href="{{ page_url(p) }}">{{ p }}</a>
+                                </li>
+                            {% endfor %}
+            
+                            {% if end_page < total_pages %}
+                                {% if end_page < total_pages - 1 %}
+                                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                                {% endif %}
+                                <li class="page-item"><a class="page-link" href="{{ page_url(total_pages) }}">{{ total_pages }}</a></li>
+                            {% endif %}
+            
+                            {# » next #}
+                            {% if all_products.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ page_url(all_products.next_num) }}">&raquo;</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            </div> 
+    </div>
+</div>
+
+<style>
+    .product-img {
+    height: 230px;
+    object-fit: cover;
+    border-top-left-radius: 0.375rem;
+    border-top-right-radius: 0.375rem;
+    transition: transform 0.3s;
+}
+
+.product-img:hover {
+    transform: scale(1.03);
+}
+
+.product-name {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.product-price {
+    font-size: 1.25rem;
+    color: #e60023;
+    font-weight: bold;
+}
+
+.discount-tag {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 0.9rem;
+    padding: 5px 10px;
+    z-index: 2;
+    border-radius: 0.25rem;
+    box-shadow: 1px 1px 4px rgba(0,0,0,0.2);
+}
+
+.product-item:hover {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.3s;
+}
+
+</style>
+{% endblock content %}

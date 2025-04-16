@@ -1,0 +1,262 @@
+{% extends "layout.html" %}
+{% block content %}
+
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Filter Sidebar -->
+        <div class="col-md-3" >
+            <div class="sticky-sidebar">
+            <form method="GET" action="{{ url_for('search') }}" style="width: 90%;">
+                <input type="hidden" name="q" value="{{ request.args.get('q', '') }}">
+
+                <!-- Price Range -->
+                <h5>Price Range</h5>
+                <div class="pt-2 pb-2"><div id="price-slider" ></div></div>
+                
+                <p class="mt-2 mb-0"> <span id="price-min" style="padding-right: 20px;">{{ min_price }}</span><span id="price-max" style="padding-left: 20px; float: right;">{{ max_price }}</span></p>
+
+                <!-- Hidden inputs to submit min/max with form -->
+                <input type="hidden" id="minPriceInput" name="min_price" value="{{ min_price }}">
+                <input type="hidden" id="maxPriceInput" name="max_price" value="{{ max_price }}">
+                <div style="display: flex; justify-content: center; align-items: center;">
+                    <button type="submit" class="btn btn-primary">Apply</button>
+                  </div>
+
+                <hr class="mx-auto my-4" style="opacity: 0.1;">
+                
+
+                <!-- Brand Filter -->
+                <h5>Brand</h5>
+                {% for brand, count in top_brands %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="brand" value="{{ brand }}"
+                               id="brand-{{ loop.index }}" {% if brand in brand_selected %}checked{% endif %} onchange="this.form.submit()">
+                               
+                        <label class="form-check-label" for="brand-{{ loop.index }}">
+                            {{ brand }} ({{ count }})
+                        </label>
+                    </div>
+                {% endfor %}
+
+                {% if more_brands %}
+                <div id="more-brands" style="display: none;">
+                    {% for brand, count in more_brands %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="brand" value="{{ brand }}"
+                               id="brand-more-{{ loop.index }}" {% if brand in brand_selected %}checked{% endif %} onchange="this.form.submit()">
+                        <label class="form-check-label" for="brand-more-{{ loop.index }}">
+                            {{ brand }} ({{ count }})
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+                <a href="#" onclick="document.getElementById('more-brands').style.display='block'; this.remove(); return false;" class="text-reset">View more » </a>
+                {% endif %}
+
+                <hr class="mx-auto my-4" style="opacity: 0.1;">
+
+                <!-- Category Filter -->
+                <h5>Category</h5>
+                {% for category, count in top_categories %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="category" value="{{ category }}"
+                               id="category-{{ loop.index }}" {% if category in category_selected %}checked{% endif %} onchange="this.form.submit()">
+                        <label class="form-check-label" for="category-{{ loop.index }}">
+                            {{ category }} ({{ count }})
+                        </label>
+                    </div>
+                {% endfor %}
+
+                {% if more_categories %}
+                <div id="more-categories" style="display: none;">
+                    {% for category, count in more_categories %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="category" value="{{ category }}"
+                               id="category-more-{{ loop.index }}" {% if category in category_selected %}checked{% endif %} onchange="this.form.submit()">
+                        <label class="form-check-label" for="category-more-{{ loop.index }}">
+                            {{ category }} ({{ count }})
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+                <a href="#" onclick="document.getElementById('more-categories').style.display='block'; this.remove(); return false;" class="text-reset">View more » </a>
+                <br>
+                {% endif %}
+            </form>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="col-md-9">
+            <div class="row">
+                {% if results %}
+                    {% for product in results %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <a href="{{ url_for('single_product', id=product['_source']['id']) }}">
+                                <img src="{{ url_for('static', filename='images/' + product['_source']['image']) }}"
+                                    class="card-img-top" alt="{{ product['_source']['name'] }}" height="200">
+                            </a>
+                            <div class="card-body">
+                                <h5 class="card-title text-center">{{ product['_source']['name'] }}</h5>
+                                <p class="card-text text-center">
+                                    ${{ '{:,}'.format(product['_source']['price']|int) }}
+                                </p>
+                            </div>
+                            <div class="card-footer d-flex justify-content-between">
+                                <a href="{{ url_for('single_product', id=product['_source']['id']) }}" class="btn btn-sm btn-primary">Details</a>
+                                <form action="{{ url_for('AddCart') }}" method="POST">
+                                    <input type="hidden" name="product_id" value="{{ product['_source']['id'] }}">
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="btn btn-sm btn-warning">Add to Cart</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="col-12">
+                    <p>No products found.</p>
+                </div>
+                {% endif %}
+            </div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+              
+                  {# Tạo biến args không chứa 'page' #}
+                  {% set ns = namespace(args=request.args.to_dict(flat=False)) %}
+                  {% if 'page' in ns.args %}
+                    {% set _ = ns.args.pop('page') %}
+                  {% endif %}
+              
+                  {# « previous #}
+                  {% if page > 1 %}
+                    <li class="page-item">
+                      <a class="page-link" href="{{ url_for('search', page=page-1, **ns.args) }}">&laquo;</a>
+                    </li>
+                  {% endif %}
+              
+                  {% set start_page = 1 if page - 3 < 1 else page - 3 %}
+                  {% set end_page = total_pages if page + 3 > total_pages else page + 3 %}
+              
+                  {# Hiện trang đầu nếu cần #}
+                  {% if start_page > 1 %}
+                    <li class="page-item"><a class="page-link" href="{{ url_for('search', page=1, **ns.args) }}">1</a></li>
+                    {% if start_page > 2 %}
+                      <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% endif %}
+                  {% endif %}
+              
+                  {# Các trang giữa #}
+                  {% for p in range(start_page, end_page + 1) %}
+                    <li class="page-item {% if p == page %}active{% endif %}">
+                      <a class="page-link" href="{{ url_for('search', page=p, **ns.args) }}">{{ p }}</a>
+                    </li>
+                  {% endfor %}
+              
+                  {# Hiện trang cuối nếu cần #}
+                  {% if end_page < total_pages %}
+                    {% if end_page < total_pages - 1 %}
+                      <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% endif %}
+                    <li class="page-item"><a class="page-link" href="{{ url_for('search', page=total_pages, **ns.args) }}">{{ total_pages }}</a></li>
+                  {% endif %}
+              
+                  {# » next #}
+                  {% if page < total_pages %}
+                    <li class="page-item">
+                      <a class="page-link" href="{{ url_for('search', page=page+1, **ns.args) }}">&raquo;</a>
+                    </li>
+                  {% endif %}
+              
+                </ul>
+              </nav>
+              
+              
+        </div>
+    </div>
+</div>
+
+
+<!-- noUiSlider CSS & JS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.css" rel="stylesheet">
+<style>
+    .sticky-sidebar {
+    position: sticky;
+    top: 20px; /* cách lề trên một chút, chỉnh tùy header */
+    z-index: 100;
+    }
+
+    #price-slider {
+        margin-top: 10px;
+    }
+
+    .noUi-target {
+        background: #e9ecef;
+        border-radius: 15px;
+        border: none;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        height: 12px;
+    }
+
+    .noUi-connect {
+        background: #0d6efd; /* Bootstrap Primary */
+    }
+
+    .noUi-handle {
+       
+        border-radius: 100%;
+        background: white;
+        box-shadow: 0 0 3px rgba(0,0,0,0.1);
+        top: -4px;
+    }
+
+    .noUi-tooltip {
+        display: none;
+    }
+
+    .noUi-horizontal .noUi-handle {
+        cursor: pointer;
+    }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.js"></script>
+<script>
+    // Min/max thật của toàn bộ kết quả tìm kiếm (KHÔNG thay đổi khi filter)
+    const sliderMin = parseFloat('{{ search_min_price }}');
+    const sliderMax = parseFloat('{{ search_max_price }}');
+
+    // Làm sạch min/max từ query string
+    const selectedMin = parseFloat('{{ request.args.get("min_price", search_min_price)|replace(",", "")|replace("$", "") }}');
+    const selectedMax = parseFloat('{{ request.args.get("max_price", search_max_price)|replace(",", "")|replace("$", "") }}');
+
+    var priceSlider = document.getElementById('price-slider');
+    noUiSlider.create(priceSlider, {
+        start: [selectedMin, selectedMax],
+        connect: true,
+        range: {
+            'min': sliderMin,
+            'max': sliderMax
+        },
+        format: {
+            to: function (value) {
+                // Thêm dấu $ và phẩy khi hiển thị
+                return '$' + Math.round(value).toLocaleString();
+            },
+            from: function (value) {
+                return parseFloat(value.replace('$', '').replace(/,/g, ''));
+            }
+        }
+    });
+
+    // Cập nhật UI khi kéo slider
+    priceSlider.noUiSlider.on('update', function (values, handle) {
+        document.getElementById('price-min').innerText = values[0];
+        document.getElementById('price-max').innerText = values[1];
+        document.getElementById('minPriceInput').value = values[0];
+        document.getElementById('maxPriceInput').value = values[1];
+    });
+</script>
+
+{% endblock %}

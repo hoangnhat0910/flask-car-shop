@@ -1,0 +1,78 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-2">
+  <div class="container px-5">
+    <!-- Logo và tên thương hiệu -->
+    <a class="navbar-brand d-flex align-items-center fw-semibold text-primary" href="/">
+      <img src="https://freepnglogo.com/images/all_img/1719935062ford-logo.png" alt="" height="32" class="me-2">
+    </a>
+
+    <!-- Toggle button cho mobile -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Menu -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
+        <li class="nav-item">
+          <a class="nav-link" href="/">Vehicles</a>
+        </li>
+
+        <!-- Brands dropdown -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Brands
+          </a>
+          <ul class="dropdown-menu">
+            {% for brand in brands %}
+            <li><a class="dropdown-item" href="{{url_for('get_brand', id=brand.id)}}">{{ brand.name }}</a></li>
+            {% endfor %}
+          </ul>
+        </li>
+
+        <!-- Categories dropdown -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Categories
+          </a>
+          <ul class="dropdown-menu">
+            {% for category in categories %}
+            <li><a class="dropdown-item" href="{{url_for('get_category', id=category.id)}}">{{ category.name }}</a></li>
+            {% endfor %}
+          </ul>
+        </li>
+
+        <!-- Auth -->
+        {% if current_user.is_authenticated %}
+        <li class="nav-item dropdown">
+          
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Account</a>
+            <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{{url_for('customerInfo')}}">{{ current_user.name }}</a></li>
+          
+            <li><a class="dropdown-item" href="{{url_for('customerLogout')}}">Logout</a></li>
+          </ul>
+        </li>
+        {% else %}
+        <!-- <li class="nav-item">
+          <a class="nav-link" href="{{url_for('customerRegister')}}">Register</a>
+        </li> -->
+        <li class="nav-item">
+          <a class="nav-link" href="{{url_for('customerLogin')}}">Login</a>
+        </li>
+        {% endif %}
+
+        <!-- Cart -->
+        <li class="nav-item">
+          <a class="nav-link" href="{{url_for('getCart')}}">Cart ({{ total_cart_quantity() }})</a>
+        </li>
+      </ul>
+
+      <!-- Search -->
+      <form class="d-flex ms-lg-3 mt-3 mt-lg-0" role="search" action="{{ url_for('search') }}" method="get">
+        <input class="form-control me-2" type="search" placeholder="Search vehicles" aria-label="Search" name="q">
+        <button class="btn btn-primary" id="search-button" type="submit">Search</button>
+      </form>
+    </div>
+  </div>
+</nav>
