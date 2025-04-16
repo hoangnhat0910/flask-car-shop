@@ -1,0 +1,21 @@
+# Ignore Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore environment
+myvenv/
+env/
+venv/
+
+# Ignore system files
+.DS_Store
+*.swp
+
+# VSCode config
+.vscode/
+
+# Ignore environment variables or secrets
+.env
+
