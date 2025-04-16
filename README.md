@@ -53,16 +53,3 @@ For payment, use Stripe test cards. (4242 4242 4242 4242)
 
 Secrets (e.g. Stripe keys) should not be pushed to GitHub. Use environment variables or .env file (and add .env to .gitignore).
 fllask-car-shop/
-├── app.py
-├── config.py
-├── requirements.txt
-├── shop/
-│   ├── static/
-│   ├── templates/
-│   ├── customers/
-│   ├── admin/
-│   └── products/
-├── static/images/
-└── README.md
-
-
