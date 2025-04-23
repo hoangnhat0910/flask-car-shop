@@ -35,7 +35,17 @@ login_manager.login_view='customerLogin'
 login_manager.needs_refresh_message_category='danger'
 login_manager.login_message=u"Please login first!"
 
-es = Elasticsearch("http://localhost:9200")
+# es = Elasticsearch("http://localhost:9200")
+from dotenv import load_dotenv
+load_dotenv()
+
+BONSAI_URL = os.getenv("BONSAI_URL")
+es = Elasticsearch(
+    os.getenv("BONSAI_URL"),
+    headers={"Content-Type": "application/json"}
+)
+
+
 # res = es.search(index="products", body={"query": {"match_all": {}}})
 
 # for hit in res["hits"]["hits"]:
