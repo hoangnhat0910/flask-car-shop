@@ -12,7 +12,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
 # app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///myshop.db"
 
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "postgresql://postgres.qdyjelcdajiitecvomzi:%40%400840Nhat@aws-0-us-east-1.pooler.supabase.com:5432/postgres")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "postgresql://postgres.qdyjelcdajiitecvomzi:Thuvotrinh2@aws-0-us-east-1.pooler.supabase.com:6543/postgres")
 
 
 app.config['SECRET_KEY']='hoangnhat_key'
