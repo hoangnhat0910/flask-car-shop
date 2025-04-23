@@ -33,7 +33,7 @@ class Addproduct(db.Model):
     
 class Brand(db.Model):
     # __tablename__ = 'brand'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(50), nullable = False, unique=True)
 
     def __repr__(self):
